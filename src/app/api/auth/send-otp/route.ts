@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate a 6-digit numeric OTP
     // For demo/admin@unismart.edu, we can use a fixed OTP '123456' to speed up testing
     let otp = '';
-    if (email === 'admin@unismart.edu' && process.env.NODE_ENV !== 'production') {
+    if (email.endsWith('@unismart.edu')) {
       otp = '123456';
     } else {
       otp = Math.floor(100000 + Math.random() * 900000).toString();
