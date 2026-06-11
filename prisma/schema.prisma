@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Faculty {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String    @unique
+  department   String
+  academicYear String
+  status       String    @default("ACTIVE") // "ACTIVE", "INACTIVE"
+  createdAt    DateTime  @default(now())
+  students     Student[]
+}
+
+model Student {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  rollNumber     String          @unique
+  name           String
+  email          String          @unique
+  batch          String
+  facultyId      String?         @db.ObjectId
+  faculty        Faculty?        @relation(fields: [facultyId], references: [id], onDelete: SetNull)
+  attendance     Attendance[]
+  attendanceRisk AttendanceRisk?
+  createdAt      DateTime        @default(now())
+}
+
+model Attendance {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      DateTime
+  status    String   // "PRESENT", "ABSENT"
+  markedBy  String   // Email of the faculty member marking attendance
+  createdAt DateTime @default(now())
+}
+
+model AttendanceRisk {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId      String   @unique @db.ObjectId
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  riskScore      Float    // Value from 0.0 to 1.0 (representing probability of drop below 75%)
+  riskLevel      String   // "Green" (Low Risk), "Yellow" (Medium Risk), "Red" (High Risk)
+  prediction     String   // e.g. "Student attendance likely to drop below 75%."
+  recommendation String   // e.g. "Schedule intervention meeting."
+  updatedAt      DateTime @updatedAt
+}
+
+model OTP {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  otp       String
+  expiresAt DateTime
+}
