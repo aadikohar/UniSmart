@@ -6,7 +6,8 @@
     "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
     "frontend": "next dev",
     "backend": "npm run dev --prefix backend",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
   },
